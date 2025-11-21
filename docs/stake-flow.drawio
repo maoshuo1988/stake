@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mxfile host="app.diagrams.net" modified="2025-11-14T00:00:00.000Z" agent="Mozilla/5.0" etag="W/&quot;0&quot;" version="20.2.5" type="device">
+  <diagram id="stakeFlow" name="Stake Flow">
+    <mxGraphModel dx="1168" dy="706" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+
+        <!-- Nodes -->
+  <mxCell id="admin" value="管理员：部署并初始化合约" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf" vertex="1" parent="1">
+          <mxGeometry x="40" y="40" width="140" height="60" as="geometry"/>
+        </mxCell>
+
+  <mxCell id="addPool" value="添加池子：addPool(池子地址, 权重, 最小质押, 锁定区块)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#888" vertex="1" parent="1">
+          <mxGeometry x="220" y="40" width="140" height="60" as="geometry"/>
+        </mxCell>
+
+  <mxCell id="userApprove" value="用户：ERC20 先 approve 合约" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1f5d1;strokeColor=#6aa84f" vertex="1" parent="1">
+          <mxGeometry x="40" y="140" width="160" height="60" as="geometry"/>
+        </mxCell>
+
+  <mxCell id="deposit" value="质押：deposit(pid, amount) 或 depositETH()" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656" vertex="1" parent="1">
+          <mxGeometry x="220" y="140" width="160" height="60" as="geometry"/>
+        </mxCell>
+
+  <mxCell id="accumulate" value="奖励累积：updatePool 更新 accMetaNodePerST（每单位质押累计奖励）" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450" vertex="1" parent="1">
+          <mxGeometry x="420" y="140" width="220" height="60" as="geometry"/>
+        </mxCell>
+
+  <mxCell id="claim" value="领取奖励：claim(pid) -> 转账 MetaNode 给用户" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366" vertex="1" parent="1">
+          <mxGeometry x="660" y="140" width="140" height="60" as="geometry"/>
+        </mxCell>
+
+  <mxCell id="unstake" value="申请取消质押：unstake(pid, amount) -> 生成 requests 请求" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#999" vertex="1" parent="1">
+          <mxGeometry x="220" y="260" width="160" height="60" as="geometry"/>
+        </mxCell>
+
+  <mxCell id="wait" value="等待锁定期：unlockBlocks 到达后可 withdraw" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e6e6fa;strokeColor=#9a8fd1" vertex="1" parent="1">
+          <mxGeometry x="420" y="260" width="160" height="60" as="geometry"/>
+        </mxCell>
+
+  <mxCell id="withdraw" value="提现：withdraw(pid) -> 合约转 ETH 或 ERC20 给用户" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d9eaf7;strokeColor=#2f75b0" vertex="1" parent="1">
+          <mxGeometry x="620" y="260" width="180" height="60" as="geometry"/>
+        </mxCell>
+
+        <!-- Edges -->
+        <mxCell id="e1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#6c8ebf" edge="1" parent="1" source="admin" target="addPool">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="e2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#6aa84f" edge="1" parent="1" source="userApprove" target="deposit">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="e3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#d6b656" edge="1" parent="1" source="addPool" target="deposit">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="e4" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#b85450" edge="1" parent="1" source="deposit" target="accumulate">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="e5" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#82b366" edge="1" parent="1" source="accumulate" target="claim">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="e6" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#999" edge="1" parent="1" source="deposit" target="unstake">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="e7" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#9a8fd1" edge="1" parent="1" source="unstake" target="wait">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="e8" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#2f75b0" edge="1" parent="1" source="wait" target="withdraw">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <!-- Notes -->
+  <mxCell id="note1" value="说明：accMetaNodePerST 表示每 1 单位质押自上次结算以来累计的 MetaNode 奖励（乘以 1e18 做放大处理）；pending = stAmount * acc - finished + pendingCached" style="text;html=1;align=left;verticalAlign=top;whiteSpace=wrap;rounded=0;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="40" y="360" width="560" height="60" as="geometry"/>
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
