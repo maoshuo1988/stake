@@ -21,6 +21,14 @@ npx hardhat ignition deploy ./ignition/modules/Lock.js
   - 使用“每质押单位累计奖励”模型：pool.accMetaNodePerST 表示“每 1 个质押代币自上次以来累计的 MetaNode 奖励（以 1 ether 作为放大系数）”。
   - pending = (user.stAmount * accMetaNodePerST) / 1e18 - user.finishedMetaNode + user.pendingMetaNode
   - 更新逻辑：updatePool 会基于 getMultiplier(lastRewardBlock, currentBlock) * poolWeight / totalPoolWeight 计算本池这段时间产生的总奖励，再除以池内质押量得到对 accMetaNodePerST 的增量。
+  - pending（在仓库中通常为 user.pendingMetaNode）记录“已产生但尚未实际发放给用户”的奖励余额。
+    计算公式（合约中常用）：
+    pending = (user.stAmount * pool.accMetaNodePerST) / 1e18 - user.finishedMetaNode + user.pendingMetaNode
+    其中 accMetaNodePerST 是每单位质押累计的奖励，finishedMetaNode 是用户已结算的基线。
+    更新时机：每次 updatePool / _deposit / unstake 等会把按当前基线计算出的新增奖励累加到 user.pendingMetaNode，并更新 user.finishedMetaNode 以避免重复计入。
+    发放（claim）时：合约会把 user.pendingMetaNode（加上当前未结算部分）清零并通过 _safeMetaNodeTransfer 尝试转币；若合约余额不足，只发剩余，未发部分会根据实现留在 pending（或在下一次计算中继续体现）。
+    设计目的：避免每次产生奖励就立即转账（节省 gas、合并发放），防止重复计算（通过 finishedMetaNode 基线），并在合约不能即时全额支付时保留可领取余额以供后续处理。
+    典型场景：用户多次 deposit/区块推进产生奖励 → pending 累积；用户调用 claim → 合约尝试把 pending 发给用户并清零（或按实际余额发放）。
 - 存取款流程（内部函数）
   - deposit / depositETH -> 调用 _deposit：
     - 先 updatePool（拿到最新 accMetaNodePerST）
